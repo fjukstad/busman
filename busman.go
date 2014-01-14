@@ -12,19 +12,19 @@ import (
 type Stop struct {
     V int                   `json:"__v,int"`
     Id string               `json:"_id"`
-    City string             `json:"city"`
-    Name string             `json:"name"`
-    Sort_id int             `json:"sort_id,int"`
-    Destinations [] Destination    `json:"destinations"`
+    City string             
+    Name string             
+    Sort_id int             
+    Destinations [] Destination    
 }
 
 type Destination struct {
     V int                   `json:"__v,int"`
     Id string               `json:"_id"`
-    City string             `json:"city"`
-    Name string            `json:"name"`
-    Sort_id int             `json:"sort_id, int"`
-    Destinations [] string    `json:"destinations,[]string"`
+    City string            
+    Name string            
+    Sort_id int             
+    Destinations [] string    
 }
 
 
@@ -109,7 +109,6 @@ func main() {
             fmt.Println("Parsing of date went horrible... ",err)
         }
         untilDeparture := departure.Sub(time.Now()) 
-
 
         fmt.Println(untilDeparture.String())
     }
