@@ -6,6 +6,7 @@ import (
     "io/ioutil"
     "encoding/json"
     "time"
+    "flag" 
 )
 
 
@@ -44,17 +45,26 @@ type Time struct {
 
 func main() {
 
+    fromString := flag.String("from", "UiT",
+                        "The bus stop you are traveling from")
+    toString := flag.String("to", "Sentrum",
+                        "The bus stop you are traveling to") 
+
+    flag.Parse() 
+                        
     busStopsURL := "http://rutebuss.no/stops"
     
     resp, err := http.Get(busStopsURL) 
     if err != nil {
         fmt.Print("Bus stops could not be downlaoded...", err)
+        return
     }
     
     body, err := ioutil.ReadAll(resp.Body)
     
     if err != nil {
         fmt.Println("Could not read body ", err)
+        return
     }
 
 
@@ -63,15 +73,28 @@ func main() {
     err = json.Unmarshal(body, &stops)
     
     if err != nil {
-        fmt.Println(string(body))
-        fmt.Println("Could not unmarshal body... ", err,  string(body[5]))
+        fmt.Print("Bus route ",*fromString,"-",*toString,"does not exist")
+        return
     }
 
+    
+    fmt.Println("From", *fromString ,"to", *toString)
 
-    fmt.Println("From", stops[0].Name,"to", stops[1].Name)
+    var from, to string
 
-    from := stops[0].Id
-    to := stops[1].Id
+    for _, stop := range stops { 
+        if stop.Name == *fromString {
+            from = stop.Id
+        }
+        if stop.Name == *toString {
+            to = stop.Id
+        } 
+    } 
+
+    if from == "" && to == "" {
+        fmt.Println("Bus route ",from,"-",to,"does not exist")
+        return
+    }
 
     t := time.Now()
     timeString := t.UTC().Format(time.RFC3339)
@@ -83,12 +106,14 @@ func main() {
     resp, err = http.Get(travelURL) 
     if err != nil {
         fmt.Print("Bus times could not be downlaoded...", err)
+        return
     }
     
     body, err = ioutil.ReadAll(resp.Body)
     
     if err != nil {
         fmt.Println("Could not read body ", err)
+        return
     }
 
 
@@ -97,8 +122,8 @@ func main() {
     err = json.Unmarshal(body, &times)
     
     if err != nil {
-        fmt.Println(string(body))
-        fmt.Println("Could not unmarshal body... ", err,  string(body[5]))
+        fmt.Println("Bus route ",*fromString,"-",*toString,"does not exist")
+        return
     }
 
 
@@ -110,7 +135,8 @@ func main() {
         }
         untilDeparture := departure.Sub(time.Now()) 
 
-        fmt.Println(untilDeparture.String())
+        fmt.Println("Bus",t.Route,"leaves in ",untilDeparture.String(),
+                    "from", t.Busstop)
     }
 
 }
