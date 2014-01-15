@@ -126,7 +126,9 @@ func main() {
         return
     }
 
-
+    if len(times) == 0 {
+        fmt.Println("Bus route ",*fromString,"-",*toString,"does not exist")
+    }
 
     for _, t := range times {
         departure, err := time.Parse(time.RFC3339, t.Date)
@@ -134,8 +136,9 @@ func main() {
             fmt.Println("Parsing of date went horrible... ",err)
         }
         untilDeparture := departure.Sub(time.Now()) 
-
-        fmt.Println("Bus",t.Route,"leaves in ",untilDeparture.String(),
+        
+        tm := departure.Format(time.Kitchen)
+        fmt.Println("Bus",t.Route,"leaves at ", tm, " in ",untilDeparture.String(),
                     "from", t.Busstop)
     }
 
