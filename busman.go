@@ -136,6 +136,10 @@ func main() {
             fmt.Println("Parsing of date went horrible... ",err)
         }
         untilDeparture := departure.Sub(time.Now()) 
+
+        hour := time.Hour
+
+        departure = departure.Add(hour)
         
         tm := departure.Format(time.Kitchen)
         fmt.Println("Bus",t.Route,"leaves at ", tm, " in ",untilDeparture.String(),
