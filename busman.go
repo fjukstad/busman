@@ -5,6 +5,7 @@ import (
     "net/http"
     "io/ioutil"
     "encoding/json"
+    "strings"
     "time"
     "flag" 
 )
@@ -83,10 +84,10 @@ func main() {
     var from, to string
 
     for _, stop := range stops { 
-        if stop.Name == *fromString {
+        if strings.ToLower(stop.Name) == strings.ToLower(*fromString) {
             from = stop.Id
         }
-        if stop.Name == *toString {
+        if strings.ToLower(stop.Name) == strings.ToLower(*toString) {
             to = stop.Id
         } 
     } 
