@@ -1,152 +1,144 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
-    "io/ioutil"
-    "encoding/json"
-    "strings"
-    "time"
-    "flag" 
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+	"time"
 )
 
-
 type Stop struct {
-    V int                   `json:"__v,int"`
-    Id string               `json:"_id"`
-    City string             
-    Name string             
-    Sort_id int             
-    Destinations [] Destination    
+	V            int    `json:"__v,int"`
+	Id           string `json:"_id"`
+	City         string
+	Name         string
+	Sort_id      int
+	Destinations []Destination
 }
 
 type Destination struct {
-    V int                   `json:"__v,int"`
-    Id string               `json:"_id"`
-    City string            
-    Name string            
-    Sort_id int             
-    Destinations [] string    
+	V            int    `json:"__v,int"`
+	Id           string `json:"_id"`
+	City         string
+	Name         string
+	Sort_id      int
+	Destinations []string
 }
 
-
 type Time struct {
-    FromId string
-    From string
-    ToId string
-    To string
-    Date string
-    //Arrival string
-    Route int
-    Busstop string
-    Hash string
-    Id string `json:"_id"`
-    V int `json:"__v"`
+	FromId string
+	From   string
+	ToId   string
+	To     string
+	Date   string
+	//Arrival string
+	Route   int
+	Busstop string
+	Hash    string
+	Id      string `json:"_id"`
+	V       int    `json:"__v"`
 }
 
 func main() {
 
-    fromString := flag.String("from", "UiT",
-                        "The bus stop you are traveling from")
-    toString := flag.String("to", "Sentrum",
-                        "The bus stop you are traveling to") 
+	fromString := flag.String("from", "UiT",
+		"The bus stop you are traveling from")
+	toString := flag.String("to", "Sentrum",
+		"The bus stop you are traveling to")
 
-    flag.Parse() 
-                        
-    busStopsURL := "http://rutebuss.no/stops"
-    
-    resp, err := http.Get(busStopsURL) 
-    if err != nil {
-        fmt.Print("Bus stops could not be downlaoded...", err)
-        return
-    }
-    
-    body, err := ioutil.ReadAll(resp.Body)
-    
-    if err != nil {
-        fmt.Println("Could not read body ", err)
-        return
-    }
+	flag.Parse()
 
+	busStopsURL := "http://rutebuss.no/stops"
 
-    stops := make([]Stop, 100)
-    
-    err = json.Unmarshal(body, &stops)
-    
-    if err != nil {
-        fmt.Print("Bus route ",*fromString,"-",*toString,"does not exist")
-        return
-    }
+	resp, err := http.Get(busStopsURL)
+	if err != nil {
+		fmt.Print("Bus stops could not be downlaoded...", err)
+		return
+	}
 
-    
-    fmt.Println("From", *fromString ,"to", *toString)
+	body, err := ioutil.ReadAll(resp.Body)
 
-    var from, to string
+	if err != nil {
+		fmt.Println("Could not read body ", err)
+		return
+	}
 
-    for _, stop := range stops { 
-        if strings.ToLower(stop.Name) == strings.ToLower(*fromString) {
-            from = stop.Id
-        }
-        if strings.ToLower(stop.Name) == strings.ToLower(*toString) {
-            to = stop.Id
-        } 
-    } 
+	stops := make([]Stop, 100)
 
-    if from == "" && to == "" {
-        fmt.Println("Bus route ",from,"-",to,"does not exist")
-        return
-    }
+	err = json.Unmarshal(body, &stops)
 
-    t := time.Now()
-    timeString := t.UTC().Format(time.RFC3339)
-    
+	if err != nil {
+		fmt.Print("Bus route ", *fromString, "-", *toString, "does not exist")
+		return
+	}
 
-    travelURL :=
-        "http://rutebuss.no/departure?from="+from+"&to="+to+"&date="+timeString
-    
-    resp, err = http.Get(travelURL) 
-    if err != nil {
-        fmt.Print("Bus times could not be downlaoded...", err)
-        return
-    }
-    
-    body, err = ioutil.ReadAll(resp.Body)
-    
-    if err != nil {
-        fmt.Println("Could not read body ", err)
-        return
-    }
+	fmt.Println("From", *fromString, "to", *toString)
 
+	var from, to string
 
-    times := make([]Time, 10)
-    
-    err = json.Unmarshal(body, &times)
-    
-    if err != nil {
-        fmt.Println("Bus route ",*fromString,"-",*toString,"does not exist")
-        return
-    }
+	for _, stop := range stops {
+		if strings.ToLower(stop.Name) == strings.ToLower(*fromString) {
+			from = stop.Id
+		}
+		if strings.ToLower(stop.Name) == strings.ToLower(*toString) {
+			to = stop.Id
+		}
+	}
 
-    if len(times) == 0 {
-        fmt.Println("Bus route ",*fromString,"-",*toString,"does not exist")
-    }
+	if from == "" && to == "" {
+		fmt.Println("Bus route ", from, "-", to, "does not exist")
+		return
+	}
 
-    for _, t := range times {
-        departure, err := time.Parse(time.RFC3339, t.Date)
-        if err != nil {
-            fmt.Println("Parsing of date went horrible... ",err)
-        }
-        untilDeparture := departure.Sub(time.Now()) 
+	t := time.Now()
+	timeString := t.UTC().Format(time.RFC3339)
 
-        hour := time.Hour
+	travelURL :=
+		"http://rutebuss.no/departure?from=" + from + "&to=" + to + "&date=" + timeString
 
-        departure = departure.Add(hour)
-        
-        tm := departure.Format(time.Kitchen)
-        fmt.Println("Bus",t.Route,"leaves at ", tm, " in ",untilDeparture.String(),
-                    "from", t.Busstop)
-    }
+	resp, err = http.Get(travelURL)
+	if err != nil {
+		fmt.Print("Bus times could not be downlaoded...", err)
+		return
+	}
+
+	body, err = ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		fmt.Println("Could not read body ", err)
+		return
+	}
+
+	times := make([]Time, 10)
+
+	err = json.Unmarshal(body, &times)
+
+	if err != nil {
+		fmt.Println("Bus route ", *fromString, "-", *toString, "does not exist")
+		return
+	}
+
+	if len(times) == 0 {
+		fmt.Println("Bus route ", *fromString, "-", *toString, "does not exist")
+	}
+
+	for _, t := range times {
+		departure, err := time.Parse(time.RFC3339, t.Date)
+		if err != nil {
+			fmt.Println("Parsing of date went horrible... ", err)
+		}
+		untilDeparture := departure.Sub(time.Now())
+
+		hour := time.Hour
+
+		departure = departure.Add(hour)
+
+		tm := departure.Format(time.Kitchen)
+		fmt.Println("Bus", t.Route, "leaves at ", tm, " in ",
+                            untilDeparture.String(), "from", t.Busstop)
+	}
 
 }
-
-
