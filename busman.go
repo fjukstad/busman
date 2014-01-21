@@ -8,6 +8,7 @@ import (
         "net/http"
         "strings"
         "time"
+        "os"
 )
 
 type Stop struct {
@@ -44,12 +45,6 @@ type Time struct {
 
 func main() {
 
-        fromString := flag.String("from", "UiT",
-                "The bus stop you are traveling from")
-        toString := flag.String("to", "Sentrum",
-                "The bus stop you are traveling to")
-
-        flag.Parse()
 
         busStopsURL := "http://rutebuss.no/stops"
 
@@ -71,11 +66,34 @@ func main() {
         err = json.Unmarshal(body, &stops)
 
         if err != nil {
-                fmt.Print("Bus route ", *fromString, "-", *toString, "does not exist")
+                fmt.Print("Error contacting rutebuss.no")
                 return
         }
 
+	
+        availibleStops := "" 
+        for _, stp := range(stops) {
+            availibleStops += stp.Name + "\n\t"
+        }
+	
+        fromString := flag.String("from", "UiT",
+                "The bus stop you are traveling from")
+        toString := flag.String("to", "Sentrum",
+                "The bus stop you are traveling to")
+        
+
+        
+        flag.Usage = func(){
+            flag.PrintDefaults()
+            fmt.Fprintf(os.Stderr, "Availible stops: \n\t"+availibleStops)
+            
+        }
+
+
+        flag.Parse()
+
         fmt.Println("From", *fromString, "to", *toString)
+        
 
         var from, to string
 
