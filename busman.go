@@ -72,8 +72,13 @@ func main() {
 
 	
         availibleStops := "" 
-        for _, stp := range(stops) {
-            availibleStops += stp.Name + "\n\t"
+        for i, stp := range(stops) {
+            availibleStops += stp.Name
+            if i%2 == 1{
+                availibleStops += "\n"
+            } else {
+                availibleStops += "\t\t"
+            }
         }
 	
         fromString := flag.String("from", "UiT",
@@ -81,14 +86,10 @@ func main() {
         toString := flag.String("to", "Sentrum",
                 "The bus stop you are traveling to")
         
-
-        
         flag.Usage = func(){
             flag.PrintDefaults()
-            fmt.Fprintf(os.Stderr, "Availible stops: \n\t"+availibleStops)
-            
+            fmt.Fprintf(os.Stderr, "Availible stops: \n"+availibleStops)
         }
-
 
         flag.Parse()
 
