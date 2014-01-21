@@ -70,31 +70,27 @@ func main() {
                 return
         }
 
-	
-        availibleStops := "" 
-        for i, stp := range(stops) {
-            availibleStops += stp.Name
-            if i%2 == 1{
-                availibleStops += "\n"
-            } else {
-                availibleStops += "\t\t"
-            }
-        }
-	
+
         fromString := flag.String("from", "UiT",
                 "The bus stop you are traveling from")
         toString := flag.String("to", "Sentrum",
                 "The bus stop you are traveling to")
-        
+
         flag.Usage = func(){
+            fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
             flag.PrintDefaults()
-            fmt.Fprintf(os.Stderr, "Availible stops: \n"+availibleStops)
+            fmt.Fprintf(os.Stderr, "\nAvailible stops: \n")//+availibleStops)
+            for i, _ := range stops {
+                if i%2 == 0 {
+                    fmt.Fprintf(os.Stderr, "%-20s%s\n", stops[i].Name, stops[i+1].Name)
+                }
+            }
         }
 
         flag.Parse()
 
         fmt.Println("From", *fromString, "to", *toString)
-        
+
 
         var from, to string
 
