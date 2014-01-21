@@ -82,7 +82,11 @@ func main() {
             fmt.Fprintf(os.Stderr, "\nAvailible stops: \n")//+availibleStops)
             for i, _ := range stops {
                 if i%2 == 0 {
-                    fmt.Fprintf(os.Stderr, "%-20s%s\n", stops[i].Name, stops[i+1].Name)
+                    if i == len(stops) - 1 {
+                        fmt.Fprintln(os.Stderr, stops[i].Name)
+                    } else {
+                        fmt.Fprintf(os.Stderr, "%-20s%s\n", stops[i].Name, stops[i+1].Name)
+                    }
                 }
             }
         }
