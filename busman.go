@@ -76,6 +76,9 @@ func main() {
         toString := flag.String("to", "Sentrum",
                 "The bus stop you are traveling to")
 
+        invert := flag.Bool("i", false,
+            "Switch the from and to values with each other")
+
         flag.Usage = func(){
             fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
             flag.PrintDefaults()
@@ -92,6 +95,11 @@ func main() {
         }
 
         flag.Parse()
+        if *invert {
+            tmp := fromString
+            fromString = toString
+            toString = tmp
+        }
 
         fmt.Println("From", *fromString, "to", *toString)
 
