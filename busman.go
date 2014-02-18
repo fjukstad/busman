@@ -79,6 +79,9 @@ func main() {
         invert := flag.Bool("i", false,
             "Switch the from and to values with each other")
 
+        specificTime := flag.String("time", "now",
+                "Specific time of departure. Formatted as hour:minute") 
+
         flag.Usage = func(){
             fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
             flag.PrintDefaults()
@@ -119,13 +122,42 @@ func main() {
                 fmt.Println("Bus route ", from, "-", to, "does not exist")
                 return
         }
+        
+        var t time.Time
+        var timeString string
 
-        t := time.Now()
-        timeString := t.UTC().Format(time.RFC3339)
+        if *specificTime != "now" {
+            const layout = "15:04"
+            t, err = time.Parse(layout, *specificTime)
+
+            if err != nil {
+                fmt.Println("Error: Could not parse time:", *specificTime) 
+                fmt.Println(t)
+                //flag.Usage()
+                return
+            }
+            
+            t_now := time.Now() 
+            y,m,d := t_now.Date() 
+
+            // date() gave day and month +1 :( 
+            d = d - 1
+            mnth := int(m) - 1
+            
+            // since t object is 0000-00-00Thour:minute we need to add today's
+            // date and everything. 
+            t = t.AddDate(y,mnth,d)
+
+
+            timeString = t.UTC().Format(time.RFC3339)
+        } else {
+            t = time.Now()
+            timeString = t.UTC().Format(time.RFC3339)
+        }
 
         travelURL :=
                 "http://rutebuss.no/departure?from=" + from + "&to=" + to + "&date=" + timeString
-
+        
         resp, err = http.Get(travelURL)
         if err != nil {
                 fmt.Print("Bus times could not be downlaoded...", err)
@@ -152,23 +184,25 @@ func main() {
                 fmt.Println("Bus route ", *fromString, "-", *toString, "does not exist")
         }
 
-        for _, t := range times {
-                departure, err := time.Parse(time.RFC3339, t.Date)
+        for _, departure_time := range times {
+
+                departure, err := time.Parse(time.RFC3339, departure_time.Date)
+
                 if err != nil {
                         fmt.Println("Parsing of date went horrible... ", err)
                 }
-                untilDeparture := departure.Sub(time.Now())
+
+                untilDeparture := departure.Sub(t)
                 untilDString := untilDeparture.String()
                 untilDString = strings.Split(untilDString, ".")[0]
                 untilDString = untilDString + "s"
 
                 hour := time.Hour
-
                 departure = departure.Add(hour)
 
                 tm := departure.Format(time.Kitchen)
-                fmt.Println("Bus", t.Route, "leaves at", tm, "in",
-                        untilDString, "from", t.Busstop)
+                fmt.Println("Bus", departure_time.Route, "leaves at", tm, "in",
+                        untilDString, "from", departure_time.Busstop)
         }
 
 }
