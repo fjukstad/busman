@@ -128,7 +128,10 @@ func main() {
 
         if *specificTime != "now" {
             const layout = "15:04"
-            t, err = time.Parse(layout, *specificTime)
+            
+            location, _ := time.LoadLocation("Local")
+            
+            t, err = time.ParseInLocation(layout, *specificTime, location)
 
             if err != nil {
                 fmt.Println("Error: Could not parse time:", *specificTime) 
@@ -143,11 +146,11 @@ func main() {
             // date() gave day and month +1 :( 
             d = d - 1
             mnth := int(m) - 1
+
             
             // since t object is 0000-00-00Thour:minute we need to add today's
             // date and everything. 
             t = t.AddDate(y,mnth,d)
-
 
             timeString = t.UTC().Format(time.RFC3339)
         } else {
