@@ -146,7 +146,6 @@ func main() {
             // date() gave day and month +1 :( 
             d = d - 1
             mnth := int(m) - 1
-
             
             // since t object is 0000-00-00Thour:minute we need to add today's
             // date and everything. 
@@ -195,7 +194,7 @@ func main() {
                         fmt.Println("Parsing of date went horrible... ", err)
                 }
 
-                untilDeparture := departure.Sub(t)
+                untilDeparture := departure.Sub(time.Now())
                 untilDString := untilDeparture.String()
                 untilDString = strings.Split(untilDString, ".")[0]
                 untilDString = untilDString + "s"
