@@ -64,7 +64,7 @@ func main() {
         err = json.Unmarshal(body, &stops)
 
         if err != nil {
-                fmt.Print("Error contacting rutebuss.no")
+                fmt.Println("Error contacting rutebuss.no")
                 return
         }
 
