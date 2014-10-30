@@ -106,7 +106,6 @@ func main() {
 
 
         var from, to string
-
         for _, stop := range stops {
                 if strings.ToLower(stop.Name) == strings.ToLower(*fromString) {
                         from = stop.Id
@@ -200,7 +199,7 @@ func main() {
                 hour := time.Hour
                 departure = departure.Add(hour)
                 // Daylight savings bug. We'll have to look at it later. 
-                departure = departure.Add(hour) 
+                // departure = departure.Add(hour) 
 
                 tm := departure.Format(time.Kitchen)
                 fmt.Println("Bus", departure_time.Route, "leaves at", tm, "in",
