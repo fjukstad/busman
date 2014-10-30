@@ -44,9 +44,7 @@ type Time struct {
 }
 
 func main() {
-
-
-        busStopsURL := "http://rutebuss.no/stops"
+        busStopsURL := "http://rutebuss.no/stops/Tromsø"
 
         resp, err := http.Get(busStopsURL)
         if err != nil {
